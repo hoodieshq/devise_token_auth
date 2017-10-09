@@ -19,14 +19,14 @@ module DeviseTokenAuth
         if resource_class.case_insensitive_keys.include?(field)
           q_value.downcase!
         end
-
-        q = "#{field.to_s} = ? AND provider='#{provider}'"
-
-        if ActiveRecord::Base.connection.adapter_name.downcase.starts_with? 'mysql'
-          q = "BINARY " + q
-        end
-
-        @resource = resource_class.where(q, q_value).first
+        @resource =
+          if field == :login
+            q_login = "(lower(username) = :login OR phone = :login) AND provider='#{provider}'"
+            resource_class.where(q_login, login: q_value, phone: PhonyRails.normalize_number(q_value, country_code: 'SA')).first
+          else
+            q = "#{field.to_s} = :username AND provider='#{provider}'"
+            resource_class.where(q, username: q_value).first
+          end
       end
 
       if @resource && valid_params?(field, q_value) && (!@resource.respond_to?(:active_for_authentication?) || @resource.active_for_authentication?)

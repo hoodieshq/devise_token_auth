@@ -13,6 +13,8 @@ gemspec
 # To use debugger
 # gem 'debugger'
 
+gem 'phony_rails'
+
 group :development, :test do
   gem 'thor'
   gem "figaro",                 :git => 'https://github.com/laserlemon/figaro'
